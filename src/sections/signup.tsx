@@ -23,6 +23,7 @@ export default function SignupPage() {
                         </div>
                         <div className="bg-muted relative hidden lg:block">
                                 <Image
+                                        fill
                                         src="https://images.unsplash.com/photo-1758696654710-bd61aa76c8a7?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                                         alt="Image"
                                         className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"

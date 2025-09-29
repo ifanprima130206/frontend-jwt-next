@@ -1,7 +1,7 @@
 "use client"
-
 import { useState } from "react"
 import { Errors } from "@/types/auth"
+import { useRouter } from "next/navigation"
 
 type SigninPayload = {
         email: FormDataEntryValue | null
@@ -9,6 +9,7 @@ type SigninPayload = {
 }
 
 export function useSignin() {
+        const router = useRouter()
         const [loading, setLoading] = useState(false)
         const [errors, setErrors] = useState<Errors>({})
         const [generalError, setGeneralError] = useState<string | null>(null)
@@ -22,42 +23,36 @@ export function useSignin() {
 
                 try {
                         const API_URL = process.env.NEXT_PUBLIC_API_URL
-                        console.log("API_URL:", process.env.NEXT_PUBLIC_API_URL)
+                        if (!API_URL) throw new Error("API URL is not defined")
+
                         const res = await fetch(`${API_URL}/auth/signin`, {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({
-                                        email: String(payload.email ?? ""),
-                                        password: String(payload.password ?? ""),
+                                        email: payload.email?.toString().trim() ?? "",
+                                        password: payload.password?.toString().trim() ?? "",
                                 }),
                                 credentials: "include",
                         })
 
                         const data = await res.json()
-                        console.log("API response:", res, data) // <-- tampilkan di console
 
                         if (!res.ok) {
-                                console.log("API returned error:", data) // <-- tampilkan error detail
-                                if (data?.errors) {
-                                        setErrors(data.errors as Errors)
-                                } else if (data?.error) {
-                                        setGeneralError(data.error)
-                                } else if (data?.message) {
-                                        setGeneralError(data.message)
-                                } else {
-                                        setGeneralError("Signin failed")
-                                }
+                                if (data?.errors) setErrors(data.errors as Errors)
+                                else if (data?.error) setGeneralError(data.error)
+                                else if (data?.message) setGeneralError(data.message)
+                                else setGeneralError("Signin failed")
                         } else {
-                                setSuccess("Login successful!")
+                                setSuccess(data?.message ?? "Login successful!")
+                                router.push("/dashboard")
                         }
                 } catch (err) {
-                        console.error("Fetch error:", err) // <-- tampilkan error network
+                        console.error(err)
                         setGeneralError("Something went wrong")
                 } finally {
                         setLoading(false)
                 }
         }
-
 
         return { loading, errors, generalError, success, signin }
 }
